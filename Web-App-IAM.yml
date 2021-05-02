@@ -1,0 +1,40 @@
+Description: >
+   Vearak Thach IAM Policy Template - Web-App
+############################### Parameters ################################
+Parameters:
+  EnvironmentName:
+    Description: An environment name that will be prefixed to resource names
+    Type: String
+    Default: Web-App-Vearak
+
+############################### Resources ################################
+Resources:
+  UdacityS3ReadOnlyEC2:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/AmazonS3FullAccess'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: 'Allow'
+            Principal:
+              Service:
+                - 'ec2.amazonaws.com'
+            Action:
+              - 'sts:AssumeRole'
+      Path: '/'
+
+  IAMProfileWebApp:
+    Type: 'AWS::IAM::InstanceProfile'
+    Properties:
+      Path: '/'
+      Roles:
+        - Ref: 'UdacityS3ReadOnlyEC2'
+
+Outputs:
+  IAMProfileWebApp:
+    Description: 'Allow EC2 instances to manage Web App S3'
+    Value: !Ref UdacityS3ReadOnlyEC2
+    Export:
+      Name: !Sub ${EnvironmentName}-IAM-NAME
